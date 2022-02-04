@@ -1,0 +1,17 @@
+SYSTEMD_SERVICE_NAME=@SYSTEMD_SERVICE_NAME@
+SYSTEMD_UNIT_FILE_NAME=@SYSTEMD_UNIT_FILE_NAME@
+if [ $1 -eq 1 ]; then
+    [ -d @CPACK_ETC_DIR@ ] || %{__mkdir} @CPACK_ETC_DIR@
+    %{__install} -m 644 @CPACK_SHARE_DIR@/$SYSTEMD_UNIT_FILE_NAME %{_unitdir}/$SYSTEMD_UNIT_FILE_NAME
+fi
+
+%systemd_post $SYSTEMD_SERVICE_NAME
+
+if [ $1 -eq 1 ]; then
+    ssize=$(tput cols)
+    printf %"$ssize"s |tr " " "-"  
+    echo "$SYSTEMD_SERVICE_NAME was installed..."
+    echo "Before starting systemd unit, first install ziti identity jwt token to: @ZITI_JWT_FILE@"
+    echo "Then, enroll the identity: sudo ziti-edge-tunnel enroll --jwt @ZITI_JWT_FILE@ --identity @ZITI_IDENTITY_FILE@"
+    printf %"$ssize"s |tr " " "-"  
+fi

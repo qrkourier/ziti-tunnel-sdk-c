@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 if(NOT ZITI_SDK_C_BRANCH)
     #allow using a different branch of the CSDK easily
-    set(ZITI_SDK_C_BRANCH "0.26.22")
+    set(ZITI_SDK_C_BRANCH "0.26.18")
 endif()
 
 option(TUNNEL_SDK_ONLY "build only ziti-tunnel-sdk (without ziti)" OFF)
@@ -18,9 +18,6 @@ string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" ver "${GIT_VERSION}")
 project(ziti-tunnel-sdk-c
         VERSION "${ver}"
         LANGUAGES C CXX)
-include(CPack)
-set(CPACK_PACKAGE_VENDOR "NetFoundry")
-set(CMAKE_C_STANDARD 99)
 
 if (MSVC)
     add_compile_options(-Zi)
@@ -35,9 +32,9 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bundle)
 
 macro(BUNDLE_COMP comp)
     add_custom_target(${comp}-bundle
-            BYPRODUCTS ${CMAKE_BINARY_DIR}/bundle/${comp}-${CPACK_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.zip
+	    BYPRODUCTS ${CMAKE_BINARY_DIR}/bundle/${comp}-${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.zip
             DEPENDS ${comp}
-            COMMAND 7z a ${CMAKE_BINARY_DIR}/bundle/${comp}-${CPACK_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.zip ${comp}${CMAKE_EXECUTABLE_SUFFIX} ${${comp}_BUNDLE_COMPS}
+	    COMMAND 7z a ${CMAKE_BINARY_DIR}/bundle/${comp}-${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_PROCESSOR}.zip ${comp}${CMAKE_EXECUTABLE_SUFFIX} ${${comp}_BUNDLE_COMPS}
             )
     add_dependencies(bundle ${comp}-bundle)
 endmacro()
@@ -83,3 +80,6 @@ install(TARGETS lwipwin32arch
         DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
 endif()
+
+#set(CPACK_PACKAGE_VENDOR "NetFoundry")
+#include(CPack)

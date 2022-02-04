@@ -40,7 +40,6 @@ target_include_directories(ziti-edge-tunnel
 target_compile_definitions(ziti-edge-tunnel
         PRIVATE GIT_VERSION=${GIT_VERSION}
         PRIVATE ZITI_LOG_PREFIX=${PROJECT_NAME}
-        PRIVATE ZITI_LOG_MODULE="ziti-edge-tunnel"
         )
 
 target_link_libraries(ziti-edge-tunnel
@@ -53,4 +52,9 @@ BUNDLE_COMP(ziti-edge-tunnel)
 
 install(TARGETS ziti-edge-tunnel
         DESTINATION ${CMAKE_INSTALL_BINDIR}
+	COMPONENT ${PROJECT_NAME}
         )
+
+include("${CMAKE_CURRENT_SOURCE_DIR}/package/CPackPackage.cmake")
+
+include(CPack)
