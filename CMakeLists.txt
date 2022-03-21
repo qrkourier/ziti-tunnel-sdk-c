@@ -36,7 +36,7 @@ else()
 endif()
 string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" PROJECT_SEMVER "${GIT_VERSION}")
 
-message(INFO "Parsed Git version as project semver \"${PROJECT_SEMVER}\".")
+message(INFO "Parsed Git version \"${GIT_VERSION}\" as project semver \"${PROJECT_SEMVER}\".")
 
 project(ziti-tunnel-sdk-c
         VERSION "${PROJECT_SEMVER}"
