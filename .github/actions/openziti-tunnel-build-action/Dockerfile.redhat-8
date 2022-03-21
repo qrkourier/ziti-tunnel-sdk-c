@@ -22,6 +22,7 @@ RUN dnf install -y \
         doxygen \
         graphviz \
         redhat-lsb \
+        git \
     && dnf clean all 
 
     

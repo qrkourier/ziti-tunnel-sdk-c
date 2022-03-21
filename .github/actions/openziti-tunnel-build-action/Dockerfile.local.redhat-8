@@ -32,6 +32,7 @@ RUN dnf install -y \
         doxygen \
         graphviz \
         redhat-lsb \
+        git \
     && dnf clean all 
 
 RUN echo -e "GITHUB_ORG: ${GITHUB_ORG}\nGITHUB_BRANCH: ${GITHUB_BRANCH}"

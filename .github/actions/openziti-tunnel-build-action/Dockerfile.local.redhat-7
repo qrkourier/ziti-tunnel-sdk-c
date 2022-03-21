@@ -29,6 +29,7 @@ RUN yum install -y \
     yum install -y \
         devtoolset-10 \
         devtoolset-10-libatomic-devel \
+        git \
         redhat-lsb && \
     yum clean all
 

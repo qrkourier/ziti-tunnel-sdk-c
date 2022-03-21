@@ -20,6 +20,7 @@ RUN yum install -y \
         devtoolset-10 \
         devtoolset-10-libatomic-devel \
         redhat-lsb \
+        git \
     && yum clean all
 
 RUN curl -L https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}-linux-x86_64.sh -o cmake.sh && \
