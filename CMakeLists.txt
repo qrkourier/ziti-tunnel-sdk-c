@@ -4,19 +4,38 @@ if(NOT ZITI_SDK_C_BRANCH)
     set(ZITI_SDK_C_BRANCH "0.26.29")
 endif()
 
+# if TUNNEL_SDK_ONLY then don't descend into programs/ziti-edge-tunnel
 option(TUNNEL_SDK_ONLY "build only ziti-tunnel-sdk (without ziti)" OFF)
-
 message("tunnel only = ${TUNNEL_SDK_ONLY}")
 
-execute_process(
-        COMMAND git describe --tags --dirty=-local
-        OUTPUT_VARIABLE GIT_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE
+find_package(Git)
+add_custom_target(version
+    if(GIT_FOUND)
+        # Generate a git-describe version string from Git repository tags
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} describe --tags --dirty=-local --match "v*"
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            OUTPUT_VARIABLE GIT_DESCRIBE_VERSION
+            RESULT_VARIABLE GIT_DESCRIBE_ERROR_CODE
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+        if(NOT GIT_DESCRIBE_ERROR_CODE)
+            set(GIT_VERSION ${GIT_DESCRIBE_VERSION})
+        endif()
+    endif()
+    # Final fallback: Just use a bogus version string that is semantically older
+    # than anything else and spit out a warning to the developer.
+    if(DEFINED GIT_VERSION)
+    else()
+        set(GIT_VERSION v0.0.0-unknown)
+        message(WARNING "Failed to determine GIT_VERSION from Git tags. Using default version \"${GIT_VERSION}\".")
+    endif()
+    string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" PROJECT_SEMVER "${GIT_VERSION}")
 )
-string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" ver "${GIT_VERSION}")
+add_dependencies(package version)
 
 project(ziti-tunnel-sdk-c
-        VERSION "${ver}"
+        VERSION "${PROJECT_SEMVER}"
         LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 99)
