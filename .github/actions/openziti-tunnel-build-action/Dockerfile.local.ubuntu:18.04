@@ -1,0 +1,50 @@
+ARG CMAKE_VERSION="3.22.3"
+ARG ZITI_VERSION="0.17.24"
+ARG GITHUB_BASE_URL="https://github.com/"
+ARG GITHUB_ORG="openziti"
+ARG GITHUB_BRANCH="v${ZITI_VERSION}"
+
+FROM ubuntu:bionic
+
+ARG CMAKE_VERSION
+ARG ZITI_VERSION
+ARG GITHUB_BASE_URL
+ARG GITHUB_ORG
+ARG GITHUB_BRANCH
+
+USER root
+WORKDIR /root/
+
+ENV PATH="/usr/local/:${PATH}"
+
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        curl \
+        doxygen \
+        git \
+        graphviz \
+        libsystemd-dev \
+        iproute2 \
+        p7zip-full \
+        pkg-config \
+        python3 \
+        lsb-release \
+        zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -L https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}-linux-x86_64.sh -o cmake.sh && \
+    (bash cmake.sh --skip-license --prefix=/usr/local) && \
+    rm cmake.sh
+
+RUN echo -e "GITHUB_ORG: ${GITHUB_ORG}\nGITHUB_BRANCH: ${GITHUB_BRANCH}"
+
+RUN git clone ${GITHUB_BASE_URL}/${GITHUB_ORG}/ziti-tunnel-sdk-c.git --branch ${GITHUB_BRANCH} --depth 1
+    
+WORKDIR /root/ziti-tunnel-sdk-c
+
+RUN cmake -E make_directory ./build  
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./toolchains/default.cmake -S . -B ./build 
+RUN cmake --build ./build --target package --verbose
+
+RUN ./build/programs/ziti-edge-tunnel/ziti-edge-tunnel version

@@ -1,0 +1,35 @@
+FROM ubuntu:xenial
+
+ARG CMAKE_VERSION="3.22.3"
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+USER root
+WORKDIR /root/
+
+ENV PATH="/usr/local/:${PATH}"
+
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        curl \
+        doxygen \
+        git \
+        graphviz \
+        iproute2 \
+        p7zip-full \
+        pkg-config \
+        python3 \
+        libsystemd-dev \
+        lsb-release \
+        zlib1g-dev  && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -L https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}-linux-x86_64.sh -o cmake.sh && \
+    (bash cmake.sh --skip-license --prefix=/usr/local) && \
+    rm cmake.sh
+
+WORKDIR /github/workspace
+COPY ./entrypoint.sh /root/
+ENTRYPOINT [ "/root/entrypoint.sh" ]

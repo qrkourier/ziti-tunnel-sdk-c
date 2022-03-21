@@ -1,0 +1,47 @@
+ARG GITHUB_BASE_URL="https://github.com/"
+ARG GITHUB_ORG="openziti"
+ARG ZITI_VERSION="0.17.24"
+ARG GITHUB_BRANCH="v${ZITI_VERSION}"
+
+
+FROM ubuntu:focal
+
+ARG GITHUB_BASE_URL
+ARG GITHUB_ORG
+ARG ZITI_VERSION
+ARG GITHUB_BRANCH
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=TZ=America/New_York
+
+USER root
+WORKDIR /root/
+
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        cmake \
+        curl \
+        doxygen \
+        git \
+        graphviz \
+        libsystemd-dev \
+        iproute2 \
+        p7zip-full \
+        pkg-config \
+        python3 \
+        zlib1g-dev \
+        lsb-release \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN echo -e "GITHUB_ORG: ${GITHUB_ORG}\nGITHUB_BRANCH: ${GITHUB_BRANCH}"
+
+RUN git clone ${GITHUB_BASE_URL}/${GITHUB_ORG}/ziti-tunnel-sdk-c.git --branch ${GITHUB_BRANCH} --depth 1
+    
+WORKDIR /root/ziti-tunnel-sdk-c
+
+RUN cmake -E make_directory ./build  
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./toolchains/default.cmake -S . -B ./build 
+RUN cmake --build ./build --target package --verbose
+
+RUN ./build/programs/ziti-edge-tunnel/ziti-edge-tunnel version

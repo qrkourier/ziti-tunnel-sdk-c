@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -leuo pipefail
+
+cmake -E make_directory ./build  
+source scl_source enable devtoolset-10 && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./toolchains/default.cmake -S . -B ./build 
+source scl_source enable devtoolset-10 && \
+    cmake --build ./build --target package --verbose
+
+echo "INFO: running ziti-edge-tunnel"
+if (( ${#} )); then
+    ( set -x; ./build/programs/ziti-edge-tunnel/ziti-edge-tunnel ${@}; )
+else
+    ( set -x; ./build/programs/ziti-edge-tunnel/ziti-edge-tunnel version; )
+fi
+

@@ -1,0 +1,27 @@
+FROM ubuntu:focal
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+USER root
+WORKDIR /root/
+
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        cmake \
+        curl \
+        doxygen \
+        git \
+        graphviz \
+        libsystemd-dev \
+        iproute2 \
+        p7zip-full \
+        pkg-config \
+        python3 \
+        zlib1g-dev \
+        lsb-release \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ./entrypoint.sh /root/
+ENTRYPOINT [ "/root/entrypoint.sh" ]

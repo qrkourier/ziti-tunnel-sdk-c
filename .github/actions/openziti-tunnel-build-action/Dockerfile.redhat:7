@@ -1,0 +1,30 @@
+FROM quay.io/centos/centos:7
+
+ARG CMAKE_VERSION="3.22.3"
+
+USER root
+WORKDIR /root/
+
+ENV PATH="/usr/local/:${PATH}"
+
+RUN yum install -y \
+        "@Development Tools" \
+        centos-release-scl \
+        doxygen \
+        graphviz \
+        python3 \
+        zlib-devel \
+        systemd-rpm-macros \
+        cmake-rpm-macros  \
+    && yum install -y \
+        devtoolset-10 \
+        devtoolset-10-libatomic-devel \
+        redhat-lsb \
+    && yum clean all
+
+RUN curl -L https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}-linux-x86_64.sh -o cmake.sh && \
+    (bash cmake.sh --skip-license --prefix=/usr/local) && \
+    rm cmake.sh
+
+COPY ./entrypoint.sh /root/
+ENTRYPOINT [ "/root/entrypoint.sh" ]

@@ -1,0 +1,49 @@
+ARG GITHUB_BASE_URL="https://github.com/"
+ARG GITHUB_ORG="openziti"
+ARG ZITI_VERSION="0.17.24"
+ARG GITHUB_BRANCH="v${ZITI_VERSION}"
+
+FROM quay.io/rockylinux/rockylinux:8
+
+ARG GITHUB_BASE_URL
+ARG GITHUB_ORG
+ARG ZITI_VERSION
+ARG GITHUB_BRANCH
+
+USER root
+WORKDIR /root/
+
+ENV PATH="/usr/local/:${PATH}"
+
+RUN dnf install -y \
+        "@Development Tools" \
+        cmake \
+        dnf-plugins-core \
+        gcc-toolset-10 \
+        gcc-toolset-10-libatomic-devel \
+        iproute \
+        python3 \
+        systemd-devel \
+        zlib-devel \
+        systemd-rpm-macros \
+        cmake-rpm-macros  \
+    && dnf config-manager --set-enabled powertools \
+    && dnf install -y \
+        doxygen \
+        graphviz \
+        redhat-lsb \
+    && dnf clean all 
+
+RUN echo -e "GITHUB_ORG: ${GITHUB_ORG}\nGITHUB_BRANCH: ${GITHUB_BRANCH}"
+
+RUN git clone ${GITHUB_BASE_URL}/${GITHUB_ORG}/ziti-tunnel-sdk-c.git --branch ${GITHUB_BRANCH} --depth 1
+    
+WORKDIR /root/ziti-tunnel-sdk-c
+
+RUN cmake -E make_directory ./build  
+RUN source scl_source enable gcc-toolset-10 && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./toolchains/default.cmake -S . -B ./build 
+RUN source scl_source enable gcc-toolset-10 && \
+    cmake --build ./build --target package --verbose
+
+RUN ./build/programs/ziti-edge-tunnel/ziti-edge-tunnel version
