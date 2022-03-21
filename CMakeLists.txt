@@ -10,6 +10,7 @@ message("tunnel only = ${TUNNEL_SDK_ONLY}")
 
 find_package(Git)
 if(GIT_FOUND)
+    message(INFO "Found Git executable \"${GIT_EXECUTABLE}\".")
     # Generate a git-describe version string from Git repository tags
     execute_process(
         COMMAND ${GIT_EXECUTABLE} describe --tags --dirty=-local --match "v*"
@@ -20,16 +21,22 @@ if(GIT_FOUND)
         )
     if(NOT GIT_DESCRIBE_ERROR_CODE)
         set(GIT_VERSION ${GIT_DESCRIBE_VERSION})
+        message(INFO "Found Git version \"${GIT_DESCRIBE_VERSION}\" without error code.")
+    else()
+        message(INFO "Found Git version \"${GIT_DESCRIBE_VERSION}\" with error code \"${GIT_DESCRIBE_ERROR_CODE}\".")
     endif()
 endif()
 # Final fallback: Just use a bogus version string that is semantically older
 # than anything else and spit out a warning to the developer.
 if(DEFINED GIT_VERSION)
+    message(INFO "Using Git version \"${GIT_VERSION}\".")
 else()
     set(GIT_VERSION v0.0.0-unknown)
     message(WARNING "Failed to determine GIT_VERSION from Git tags. Using default version \"${GIT_VERSION}\".")
 endif()
 string(REGEX MATCH "([0-9]+\\.[0-9]+\\.[0-9]+)" PROJECT_SEMVER "${GIT_VERSION}")
+
+message(INFO "Parsed Git version as project semver \"${PROJECT_SEMVER}\".")
 
 project(ziti-tunnel-sdk-c
         VERSION "${PROJECT_SEMVER}"
