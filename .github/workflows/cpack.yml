@@ -71,9 +71,9 @@ jobs:
 
       - name: declare to Git "safe" directories owned by a different UID
         run: |
-          git config --global --add safe.directory \
-            /github/workspace \
-            /__w/ziti-tunnel-sdk-c/ziti-tunnel-sdk-c
+          for dir in /github/workspace /__w/ziti-tunnel-sdk-c/ziti-tunnel-sdk-c; do
+            git config --global --add safe.directory ${dir}
+          done
 
       - name: checkout workspace
         uses: actions/checkout@v3
