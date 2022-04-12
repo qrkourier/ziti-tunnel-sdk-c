@@ -69,10 +69,12 @@ jobs:
           chmod +x /root/git.sh
           update-alternatives --install /usr/bin/git git /root/git.sh 50
 
-      - name: workaround "unsafe directory"
+      - name: declare to Git safe directories owned by a different UID
         run: |
-          git config --global --add safe.directory /__w/ziti-tunnel-sdk-c/ziti-tunnel-sdk-c
-          git config --global --add safe.directory /github/workspace
+          for dir in /github/workspace /__w/ziti-tunnel-sdk-c/ziti-tunnel-sdk-c; do
+            ls -dl ${dir}
+            git config --global --add safe.directory ${dir}
+          done
 
       - name: checkout workspace
         uses: actions/checkout@v3
