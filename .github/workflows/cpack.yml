@@ -69,6 +69,9 @@ jobs:
           chmod +x /root/git.sh
           update-alternatives --install /usr/bin/git git /root/git.sh 50
 
+      - name: workaround "unsafe directory"
+        run: git config --global --add safe.directory /__w/ziti-tunnel-sdk-c/ziti-tunnel-sdk-c
+
       - name: checkout workspace
         uses: actions/checkout@v3
         with:
