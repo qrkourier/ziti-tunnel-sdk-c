@@ -50,7 +50,7 @@ jobs:
       - name: Ping Artifactory with jFrog CLI
         uses: jfrog/setup-jfrog-cli@v2
         env:
-          JF_ENV_1: ${{ secrets.ZITI_ARTIFACTORY_TOKEN_PACKAGE_UPLOAD }}
+          JF_ENV_1: ${{ secrets.ZITI_ARTIFACTORY_CLI_CONFIG_PACKAGE_UPLOAD }}
       - run: |
           # Ping the server
           jf rt ping
