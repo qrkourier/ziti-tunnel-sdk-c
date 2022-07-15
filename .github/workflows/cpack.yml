@@ -163,5 +163,5 @@ jobs:
           args: > 
             upload
             ./build/ziti-edge-tunnel-${{ steps.get_semver.outputs.semver }}-${{ matrix.arch }}.${{ matrix.distro.type }}
-            /rpm-stable-ziti-edge-tunnel/redhat/${{ matrix.distro.version) }}/${{ matrix.arch }}/
+            /rpm-stable-ziti-edge-tunnel/redhat${{ matrix.distro.version }}/${{ matrix.arch }}/
             --recursive=false --flat=true 
