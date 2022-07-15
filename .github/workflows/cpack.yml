@@ -163,5 +163,5 @@ jobs:
           args: > 
             upload
             ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
-            /ziti-rpm-release/redhat${{ matrix.distro.version }}/${{ matrix.arch }}/
+            /zitipax-openziti-rpm-stable/redhat${{ matrix.distro.version }}/${{ matrix.arch }}/
             --recursive=false --flat=true 
