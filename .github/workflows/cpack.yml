@@ -141,17 +141,17 @@ jobs:
       ### if release ###
       ################## 
 
-      - name: Get Semver from Tag
-        if: ${{ github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') }}
-        id: get_semver
-        run: echo ::set-output name=semver::${GITHUB_REF#refs/tags/v}
+      # - name: Get Semver from Tag
+      #   if: ${{ github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') }}
+      #   id: get_semver
+      #   run: echo ::set-output name=semver::${GITHUB_REF#refs/tags/v}
 
-      - name: rename package artifact for release
-        if: ${{ github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') }}
-        run: |
-          mv -v \
-            ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }} \
-            ./build/ziti-edge-tunnel-${{ steps.get_semver.outputs.semver }}-${{ matrix.arch }}.${{ matrix.distro.type }}
+      # - name: rename package artifact for release
+      #   if: ${{ github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') }}
+      #   run: |
+      #     mv -v \
+      #       ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }} \
+      #       ./build/ziti-edge-tunnel-${{ steps.get_semver.outputs.semver }}-${{ matrix.arch }}.${{ matrix.distro.type }}
 
       - name: Upload RPM to Artifactory with jFrog CLI
         if: ${{ github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') && matrix.distro.name == 'redhat' }}
@@ -162,6 +162,6 @@ jobs:
           access token: ${{secrets.ZITI_ARTIFACTORY_TOKEN_PACKAGE_UPLOAD}}
           args: > 
             upload
-            ./build/ziti-edge-tunnel-${{ steps.get_semver.outputs.semver }}-${{ matrix.arch }}.${{ matrix.distro.type }}
-            /rpm-stable-ziti-edge-tunnel/redhat${{ matrix.distro.version }}/${{ matrix.arch }}/
+            ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
+            /ziti-rpm-release/redhat${{ matrix.distro.version }}/${{ matrix.arch }}/
             --recursive=false --flat=true 
