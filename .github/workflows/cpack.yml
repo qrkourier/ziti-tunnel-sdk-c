@@ -47,6 +47,14 @@ jobs:
             type: rpm
             container: quay.io/rockylinux/rockylinux:8
     steps:
+      - name: Ping Artifactory with jFrog CLI
+        uses: jfrog/setup-jfrog-cli@v2
+        env:
+          JF_ENV_1: ${{ secrets.ZITI_ARTIFACTORY_TOKEN_PACKAGE_UPLOAD }}
+      - run: |
+          # Ping the server
+          jf rt ping
+
       # only 20.04 has >= 2.18, which is required by actions/checkout to clone
       # which enables cmake version discovery
       - name: install Modern Git in runner container if Ubuntu
@@ -137,14 +145,6 @@ jobs:
           name: ${{ matrix.distro.name }}-${{ matrix.distro.version }}-${{ matrix.arch }}-${{ matrix.distro.type }}
           path: ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
           if-no-files-found: error
-
-      - name: Ping Artifactory with jFrog CLI
-        uses: advancedcsg-open/action-jfrog-cli@v1.2.0
-        with:
-          url: https://netfoundry.jfrog.io/
-          credentials type: accesstoken
-          access token: ${{secrets.ZITI_ARTIFACTORY_TOKEN_PACKAGE_UPLOAD}}
-          args: ping
 
       - name: Upload RPM to Artifactory with jFrog CLI
         if: ${{ github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') && matrix.distro.name == 'redhat' }}
