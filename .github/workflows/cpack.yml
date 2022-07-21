@@ -11,6 +11,9 @@ on:
     types:
       - published
 
+env:
+  debian_arch: '{\"x86_64\": \"amd64\"}'
+
 jobs:
   package:
     runs-on: ubuntu-20.04
@@ -21,33 +24,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ x86_64 ] # TODO: migrate the Linux builds for arm, arm64 too
+        arch: [ x86_64 ]
         distro:
-          # - name: ubuntu
-          #   version: "22.04"
-          #   type: deb
+          - name: ubuntu
+            version: "22.04"
+            release_name: jammy
+            type: deb
           # - name: ubuntu
           #   version: "20.04"
+          #   release_name: focal
           #   type: deb
           # - name: ubuntu
           #   version: "18.04"
+          #   release_name: bionic
           #   type: deb
           # - name: ubuntu
           #   version: "16.04"
+          #   release_name: xenial
           #   type: deb
           # - name: ubuntu
           #   version: "14.04"
+          #   release_name: trusty
           #   type: deb
-          - name: redhat
-            version: "7"
-            type: rpm
-            container: quay.io/centos/centos:7
-          - name: redhat
-            version: "8"
-            type: rpm
-            container: quay.io/rockylinux/rockylinux:8
+          # - name: redhat
+          #   version: "7"
+          #   release_name: ${{ null }}
+          #   type: rpm
+          #   container: quay.io/centos/centos:7
+          # - name: redhat
+          #   version: "8"
+          #   release_name: ${{ null }}
+          #   type: rpm
+          #   container: quay.io/rockylinux/rockylinux:8
     steps:
-      # only 20.04 has >= 2.18, which is required by actions/checkout to clone
+      # only focal-20.04 has >= 2.18, which is required by actions/checkout to clone
       # which enables cmake version discovery
       - name: install Modern Git in runner container if Ubuntu
         if: ${{ matrix.distro.name == 'ubuntu' }}
@@ -150,6 +160,15 @@ jobs:
           jf rt upload
           ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
           /zitipax-openziti-rpm-stable/redhat${{ matrix.distro.version }}/${{ matrix.arch }}/
-          --recursive=false --flat=true 
+          --recursive=false
+          --flat=true 
 
-      # - name: Upload DEB to Artifactory with jFrog CLI  # TODO
+      - name: Upload DEB to Artifactory with jFrog CLI
+        if: ${{ github.event_name == 'release' && startsWith(github.ref, 'refs/tags/v') && matrix.distro.name == 'ubuntu' }}
+        run: >
+          jf rt upload
+          ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
+          /zitipax-openziti-deb-test/pool/ziti-edge-tunnel/${{ matrix.distro.release_name }}/ 
+          --deb=${{ matrix.distro.release_name }}/main/${{ fromJSON(env.debian_arch)[matrix.arch] }}
+          --recursive=false
+          --flat=true 
