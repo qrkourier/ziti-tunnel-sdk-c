@@ -169,6 +169,7 @@ jobs:
           jf rt upload
           ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
           /zitipax-openziti-deb-test/pool/ziti-edge-tunnel/${{ matrix.distro.release_name }}/ 
-          --deb=${{ matrix.distro.release_name }}/main/${{ fromJSON(env.debian_arch)[matrix.arch] }}
+          --deb=${{ matrix.distro.release_name }}/main/amd64
           --recursive=false
           --flat=true 
+        # --deb=${{ matrix.distro.release_name }}/main/${{ fromJSON(env.debian_arch)[matrix.arch] }}
