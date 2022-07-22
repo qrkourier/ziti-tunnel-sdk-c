@@ -11,9 +11,6 @@ on:
     types:
       - published
 
-env:
-  debian_arch: '{\"x86_64\": \"amd64\"}'
-
 jobs:
   package:
     runs-on: ubuntu-20.04
@@ -24,7 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ x86_64 ]
+        arch:
+          - rpm: x86_64  # this value matches yum var $basearch
+            deb: amd64   # this value matches debian arch
         distro:
           - name: ubuntu
             version: "22.04"
@@ -144,7 +143,7 @@ jobs:
       - name: upload package artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.distro.name }}-${{ matrix.distro.version }}-${{ matrix.arch }}-${{ matrix.distro.type }}
+          name: ${{ matrix.distro.name }}-${{ matrix.distro.version }}-${{ matrix.arch.rpm }}-${{ matrix.distro.type }}
           path: ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
           if-no-files-found: error
 
@@ -159,7 +158,7 @@ jobs:
         run: >
           jf rt upload
           ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
-          /zitipax-openziti-rpm-stable/redhat${{ matrix.distro.version }}/${{ matrix.arch }}/
+          /zitipax-openziti-rpm-stable/redhat${{ matrix.distro.version }}/${{ matrix.arch.rpm }}/
           --recursive=false
           --flat=true 
 
@@ -169,7 +168,6 @@ jobs:
           jf rt upload
           ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
           /zitipax-openziti-deb-test/pool/ziti-edge-tunnel/${{ matrix.distro.release_name }}/ 
-          --deb=${{ matrix.distro.release_name }}/main/amd64
+          --deb=${{ matrix.distro.release_name }}/main/${{ matrix.arch.deb }}
           --recursive=false
           --flat=true 
-        # --deb=${{ matrix.distro.release_name }}/main/${{ fromJSON(env.debian_arch)[matrix.arch] }}
