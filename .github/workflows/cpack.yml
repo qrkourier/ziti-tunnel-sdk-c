@@ -29,32 +29,32 @@ jobs:
             version: "22.04"
             release_name: jammy
             type: deb
-          # - name: ubuntu
-          #   version: "20.04"
-          #   release_name: focal
-          #   type: deb
-          # - name: ubuntu
-          #   version: "18.04"
-          #   release_name: bionic
-          #   type: deb
-          # - name: ubuntu
-          #   version: "16.04"
-          #   release_name: xenial
-          #   type: deb
-          # - name: ubuntu
-          #   version: "14.04"
-          #   release_name: trusty
-          #   type: deb
-          # - name: redhat
-          #   version: "7"
-          #   release_name: ${{ null }}
-          #   type: rpm
-          #   container: quay.io/centos/centos:7
-          # - name: redhat
-          #   version: "8"
-          #   release_name: ${{ null }}
-          #   type: rpm
-          #   container: quay.io/rockylinux/rockylinux:8
+          - name: ubuntu
+            version: "20.04"
+            release_name: focal
+            type: deb
+          - name: ubuntu
+            version: "18.04"
+            release_name: bionic
+            type: deb
+          - name: ubuntu
+            version: "16.04"
+            release_name: xenial
+            type: deb
+          - name: ubuntu
+            version: "14.04"
+            release_name: trusty
+            type: deb
+          - name: redhat
+            version: "7"
+            release_name: ${{ null }}
+            type: rpm
+            container: quay.io/centos/centos:7
+          - name: redhat
+            version: "8"
+            release_name: ${{ null }}
+            type: rpm
+            container: quay.io/rockylinux/rockylinux:8
     steps:
       # only focal-20.04 has >= 2.18, which is required by actions/checkout to clone
       # which enables cmake version discovery
@@ -167,7 +167,7 @@ jobs:
         run: >
           jf rt upload
           ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
-          /zitipax-openziti-deb-test/pool/ziti-edge-tunnel/${{ matrix.distro.release_name }}/ 
+          /zitipax-openziti-deb-stable/pool/ziti-edge-tunnel/${{ matrix.distro.release_name }}/ 
           --deb=${{ matrix.distro.release_name }}/main/${{ matrix.arch.deb }}
           --recursive=false
           --flat=true 
