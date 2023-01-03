@@ -11,6 +11,8 @@ jobs:
     name: Download Release Artifacts
     runs-on: ubuntu-latest
     needs: [ call-cmake-build ]
+    outputs:
+      ZITI_VERSION: ${{ steps.get_version.outputs.ZITI_VERSION }}
     steps:
       - name: download
         uses: actions/download-artifact@v2
@@ -59,11 +61,6 @@ jobs:
           asset_name: ziti-edge-tunnel-Windows_x86_64.zip
           asset_content_type: application/octet-stream
 
-  call-publish-containers:
-    name: Publish Container Images
-    runs-on: ubuntu-latest
-    needs: [ release ]
-    steps:
       - name: Get the Version String from Git Tag
         id: get_version
         env:
@@ -78,7 +75,11 @@ jobs:
             echo "ERROR: ZITI_VERSION=${ZITI_VERSION} is not a semver"
             exit 1
           fi
-      - name: Call the Publish Containers Workflow
-        uses: ./.github/workflows/publish-containers.yml
-        with:
-          ziti-version: ${{ needs.publish.outputs.ZITI_VERSION }}
+
+  call-publish-containers:
+    name: Publish Container Images
+    needs: [ release ]
+    uses: ./.github/workflows/publish-containers.yml
+    secrets: inherit
+    with:
+      ziti-version: ${{ needs.release.outputs.ZITI_VERSION }}
