@@ -40,7 +40,8 @@ jobs:
 
       - name: Set up Docker image tags for "run" container
         env:
-          RELEASE_REPO: ${{ github.repository_owner }}/ziti-edge-tunnel
+          RELEASE_REPO: kbinghamnetfoundry/ziti-edge-tunnel
+          # RELEASE_REPO: openziti/ziti-edge-tunnel
         id: tagprep_run
         run: |
           DOCKER_TAGS=""
@@ -63,7 +64,8 @@ jobs:
 
       - name: Set up Docker image tags for "run-host" container
         env:
-          RELEASE_REPO: ${{ github.repository_owner }}/ziti-host
+          RELEASE_REPO: kbinghamnetfoundry/ziti-edge-tunnel
+          # RELEASE_REPO: openziti/ziti-edge-tunnel
         id: tagprep_run_host
         run: |
           DOCKER_TAGS=""
