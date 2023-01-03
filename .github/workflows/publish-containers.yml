@@ -18,6 +18,9 @@ jobs:
   publish-containers:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Workspace
+        uses: actions/checkout@v3
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
