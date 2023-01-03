@@ -58,7 +58,6 @@ jobs:
           tags: ${{ steps.tagprep_run.outputs.DOCKER_TAGS }}
           build-args: |
             ZITI_VERSION=${{ env.ZITI_VERSION }}
-            GITHUB_BASE_URL=https://github.com/${{ github.repository_owner }}
             GITHUB_REPO=${{ github.repository }}
           push: true
 
@@ -82,6 +81,5 @@ jobs:
           tags: ${{ steps.tagprep_run_host.outputs.DOCKER_TAGS }}
           build-args: |
             ZITI_VERSION=${{ env.ZITI_VERSION }}
-            GITHUB_BASE_URL=https://github.com/${{ github.repository_owner }}
             GITHUB_REPO=${{ github.repository }}
           push: true
