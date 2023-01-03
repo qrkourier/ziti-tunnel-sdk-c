@@ -4,9 +4,8 @@ FROM debian:buster-slim as fetch-ziti-artifacts
 
 ARG ZITI_VERSION
 
-ARG GITHUB_BASE_URL="https://github.com/openziti"
-# to fetch snapshots from the "feature-0.5" branch, set ZITI_REPO="ziti-snapshot/feature-0.5"
-ARG GITHUB_REPO="ziti-tunnel-sdk-c"
+ARG GITHUB_BASE_URL
+ARG GITHUB_REPO
 
 WORKDIR /tmp
 
