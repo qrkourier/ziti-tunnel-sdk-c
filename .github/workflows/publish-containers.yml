@@ -32,12 +32,12 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_API_USER }}
           password: ${{ secrets.DOCKER_HUB_API_TOKEN }}
 
-      - name: Set up Docker image tags
+      - name: Set up Docker image tags for "run" container
         env:
           RELEASE_REPO: kbinghamnetfoundry/ziti-edge-tunnel
           # RELEASE_REPO: openziti/ziti-edge-tunnel
           ZITI_VERSION: ${{ inputs.ziti-version || github.event.inputs.ziti-version }}
-        id: tagprep
+        id: tagprep_run
         run: |
           DOCKER_TAGS=""
           DOCKER_TAGS="${RELEASE_REPO}:${ZITI_VERSION},${RELEASE_REPO}:latest"
@@ -52,4 +52,26 @@ jobs:
           file: ${{ github.workspace }}/docker/Dockerfile
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           push: true
-          tags: ${{ steps.tagprep.outputs.DOCKER_TAGS }}
+          tags: ${{ steps.tagprep_run.outputs.DOCKER_TAGS }}
+
+      - name: Set up Docker image tags for "run-host" container
+        env:
+          RELEASE_REPO: kbinghamnetfoundry/ziti-host
+          # RELEASE_REPO: openziti/ziti-host
+          ZITI_VERSION: ${{ inputs.ziti-version || github.event.inputs.ziti-version }}
+        id: tagprep_run_host
+        run: |
+          DOCKER_TAGS=""
+          DOCKER_TAGS="${RELEASE_REPO}:${ZITI_VERSION},${RELEASE_REPO}:latest"
+          echo "DEBUG: DOCKER_TAGS=${DOCKER_TAGS}"
+          echo DOCKER_TAGS="${DOCKER_TAGS}" >> $GITHUB_OUTPUT
+
+      - name: Build & Push Multi-Platform Container Image to Hub
+        uses: docker/build-push-action@v3
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: ${{ github.workspace }}/docker
+          file: ${{ github.workspace }}/docker/Dockerfile.ziti-host
+          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          push: true
+          tags: ${{ steps.tagprep_run_host.outputs.DOCKER_TAGS }}
