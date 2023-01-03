@@ -15,7 +15,7 @@ jobs:
       ZITI_VERSION: ${{ steps.get_version.outputs.ZITI_VERSION }}
     steps:
       - name: download
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: ${{ runner.workspace }}/downloads/
 
