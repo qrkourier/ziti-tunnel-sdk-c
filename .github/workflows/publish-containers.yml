@@ -17,6 +17,8 @@ on:
 jobs:
   publish-containers:
     runs-on: ubuntu-latest
+    env:
+      ZITI_VERSION: ${{ inputs.ziti-version || github.event.inputs.ziti-version }}
     steps:
       - name: Checkout Workspace
         uses: actions/checkout@v3
@@ -38,9 +40,7 @@ jobs:
 
       - name: Set up Docker image tags for "run" container
         env:
-          RELEASE_REPO: kbinghamnetfoundry/ziti-edge-tunnel
-          # RELEASE_REPO: openziti/ziti-edge-tunnel
-          ZITI_VERSION: ${{ inputs.ziti-version || github.event.inputs.ziti-version }}
+          RELEASE_REPO: ${{ github.repository_owner }}/ziti-edge-tunnel
         id: tagprep_run
         run: |
           DOCKER_TAGS=""
@@ -55,14 +55,16 @@ jobs:
           context: ${{ github.workspace }}/docker
           file: ${{ github.workspace }}/docker/Dockerfile
           platforms: linux/amd64,linux/arm/v7,linux/arm64
-          push: true
           tags: ${{ steps.tagprep_run.outputs.DOCKER_TAGS }}
+          build-args: |
+            ZITI_VERSION=${{ env.ZITI_VERSION }}
+            GITHUB_BASE_URL=https://github.com/${{ github.repository_owner }}
+            GITHUB_REPO=${{ github.repository }}
+          push: true
 
       - name: Set up Docker image tags for "run-host" container
         env:
-          RELEASE_REPO: kbinghamnetfoundry/ziti-host
-          # RELEASE_REPO: openziti/ziti-host
-          ZITI_VERSION: ${{ inputs.ziti-version || github.event.inputs.ziti-version }}
+          RELEASE_REPO: ${{ github.repository_owner }}/ziti-host
         id: tagprep_run_host
         run: |
           DOCKER_TAGS=""
@@ -77,5 +79,9 @@ jobs:
           context: ${{ github.workspace }}/docker
           file: ${{ github.workspace }}/docker/Dockerfile.ziti-host
           platforms: linux/amd64,linux/arm64
-          push: true
           tags: ${{ steps.tagprep_run_host.outputs.DOCKER_TAGS }}
+          build-args: |
+            ZITI_VERSION=${{ env.ZITI_VERSION }}
+            GITHUB_BASE_URL=https://github.com/${{ github.repository_owner }}
+            GITHUB_REPO=${{ github.repository }}
+          push: true
