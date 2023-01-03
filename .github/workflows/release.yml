@@ -80,6 +80,5 @@ jobs:
           fi
       - name: Call the Publish Containers Workflow
         uses: ./.github/workflows/publish-containers.yml
-        secrets: inherit
         with:
           ziti-version: ${{ needs.publish.outputs.ZITI_VERSION }}
