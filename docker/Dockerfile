@@ -15,7 +15,7 @@ RUN apt-get -q update && apt-get -q install -y --no-install-recommends curl ca-c
 RUN /bin/bash -c "if ! compgen -G '/etc/ssl/certs/*.[0-9]' > /dev/null; then c_rehash /etc/ssl/certs; fi"
 
 COPY fetch-github-releases.sh .
-RUN bash ./fetch-github-releases.sh ziti-edge-tunnel
+RUN bash -x ./fetch-github-releases.sh ziti-edge-tunnel
 
 ################
 #
