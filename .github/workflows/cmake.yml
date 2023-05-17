@@ -10,7 +10,7 @@ on:
   workflow_call:
 
 concurrency:
-  group: ${{ github.head_ref || github.ref }}
+  group: ${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
