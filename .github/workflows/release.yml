@@ -25,6 +25,8 @@ jobs:
       - name: List Release Artifacts
         run: ls -horRAS ${{runner.workspace}}/downloads/
 
+      # the purpose of this step is to identify the release that was created for the current tag and upload the
+      # artifacts that do not need to be renamed
       - name: Release
         id: get_release
         uses: softprops/action-gh-release@v1
@@ -32,8 +34,6 @@ jobs:
           # name: defaults to tag name
           # tag_name: defaults to github.ref
           # token: defaults to github.token
-          draft: false
-          prerelease: false
           fail_on_unmatched_files: true
           files: |
             ${{ runner.workspace }}/downloads/linux-x64/ziti-edge-tunnel-Linux_x86_64.zip
