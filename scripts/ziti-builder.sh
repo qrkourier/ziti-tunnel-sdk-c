@@ -132,6 +132,7 @@ function main() {
             --target "${CMAKE_TARGET:-bundle}" \
             --verbose
     fi
+    ls -lAh ./build/programs/ziti-edge-tunnel/Release/ziti-edge-tunnel
 }
 
 # set global WORKDIR
