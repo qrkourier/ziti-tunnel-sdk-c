@@ -1,4 +1,4 @@
-name: Promote Downstreams to Latest
+name: Promote Downstream Releases
 
 on: 
   workflow_dispatch:
@@ -30,7 +30,7 @@ jobs:
           fi
 
   set_matrix:
-    name: Calculate the Matrix of CPack Configurations
+    name: Set CPack Config Matrix
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set_matrix.outputs.matrix }}
