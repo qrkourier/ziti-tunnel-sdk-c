@@ -55,18 +55,27 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ZITI_EDGE_TUNNEL_IMAGE: ${{ vars.ZITI_EDGE_TUNNEL_IMAGE || 'docker.io/openziti/ziti-edge-tunnel' }}
+      ZITI_HOST_IMAGE: ${{ vars.ZITI_HOST_IMAGE || 'docker.io/openziti/ziti-host' }}
     steps:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ vars.DOCKER_HUB_API_USER || secrets.DOCKER_HUB_API_USER }}
           password: ${{ secrets.DOCKER_HUB_API_TOKEN }}
-      - name: Tag Latest Docker Hub image
+
+      - name: Tag Latest zti-edge-tunnel 
         shell: bash
         run: >
           docker buildx imagetools create --tag
           ${{ env.ZITI_EDGE_TUNNEL_IMAGE }}:latest
           ${{ env.ZITI_EDGE_TUNNEL_IMAGE }}:${{ needs.parse_version.outputs.version }}
+
+      - name: Tag Latest zti-host
+        shell: bash
+        run: >
+          docker buildx imagetools create --tag
+          ${{ env.ZITI_HOST_IMAGE }}:latest
+          ${{ env.ZITI_HOST_IMAGE }}:${{ needs.parse_version.outputs.version }}
 
   promote_artifactory:
     needs:
