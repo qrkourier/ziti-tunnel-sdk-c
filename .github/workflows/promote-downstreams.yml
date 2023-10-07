@@ -3,6 +3,11 @@ name: Promote Downstreams to Latest
 on: 
   workflow_dispatch:
 
+# cancel older, redundant runs of same workflow on same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   parse_version:
     name: Parse Release Version

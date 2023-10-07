@@ -13,6 +13,11 @@ on:
     types:
       - published
 
+# cancel older, redundant runs of same workflow on same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   set_matrix:
     name: Set CPack Config Matrix
