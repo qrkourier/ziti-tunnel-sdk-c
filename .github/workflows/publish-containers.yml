@@ -80,6 +80,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.tagprep_run_host.outputs.DOCKER_TAGS }}
           build-args: |
-            ZITI_VERSION=${{ env.ZITI_VERSION }}
-            GITHUB_REPO=${{ github.repository }}
+            ZITI_EDGE_TUNNEL_TAG=${{ env.ZITI_VERSION }}
+            ZITI_EDGE_TUNNEL_IMAGE=${{ env.ZITI_EDGE_TUNNEL_IMAGE }}
           push: true
