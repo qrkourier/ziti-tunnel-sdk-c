@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ZITI_VERSION: ${{ inputs.ziti-version || github.event.inputs.ziti-version }}
-      ZITI_EDGE_TUNNEL_IMAGE: ${{ vars.ZITI_EDGE_TUNNEL_IMAGE || docker.io/openziti/ziti-edge-tunnel }}
-      ZITI_HOST_IMAGE: ${{ vars.ZITI_HOST_IMAGE || docker.io/openziti/ziti-host }}
+      ZITI_EDGE_TUNNEL_IMAGE: ${{ vars.ZITI_EDGE_TUNNEL_IMAGE || 'docker.io/openziti/ziti-edge-tunnel' }}
+      ZITI_HOST_IMAGE: ${{ vars.ZITI_HOST_IMAGE || 'docker.io/openziti/ziti-host' }}
     steps:
       - name: Checkout Workspace
         uses: actions/checkout@v3
