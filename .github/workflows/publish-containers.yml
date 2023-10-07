@@ -62,7 +62,7 @@ jobs:
       - name: Set up Docker image tags for "run-host" container
         env:
           IMAGE_REPO: ${{ env.ZITI_HOST_IMAGE }}
-        id: tagprep_run
+        id: tagprep_run_host
         run: echo DOCKER_TAGS="${IMAGE_REPO}:${ZITI_VERSION}" | tee -a $GITHUB_OUTPUT
 
 
