@@ -81,7 +81,7 @@ jobs:
     needs:
       - set_matrix
       - parse_version
-    name: Promote Artifactory Testing to Release
+    name: ${{ matrix.arch.rpm }} ${{ matrix.distro.name }} ${{ matrix.distro.version }}
     runs-on: ubuntu-latest
     env:
       ZITI_DEB_TEST_REPO: ${{ vars.ZITI_DEB_TEST_REPO || 'zitipax-openziti-deb-test' }}
@@ -107,7 +107,7 @@ jobs:
           jf rt copy
           --recursive=false
           --flat=true
-          ${{ env.ZITI_RPM_TEST_REPO }}/testing/ziti-edge-tunnel/redhat${{ matrix.distro.version }}/${{ matrix.arch.rpm }}/ziti-edge-tunnel-${{ needs.parse_version.outputs.version }}-*.${{ matrix.arch.rpm }}.rpm"
+          ${{ env.ZITI_RPM_TEST_REPO }}/testing/ziti-edge-tunnel/redhat${{ matrix.distro.version }}/${{ matrix.arch.rpm }}/ziti-edge-tunnel-${{ needs.parse_version.outputs.version }}-*.${{ matrix.arch.rpm }}.rpm
           ${{ env.ZITI_RPM_PROD_REPO }}/redhat${{ matrix.distro.version }}/${{ matrix.arch.rpm }}/
 
       - name: Copy DEB from testing to release Artifactory repo with jFrog CLI
