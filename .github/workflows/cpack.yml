@@ -13,7 +13,7 @@ on:
 
 jobs:
   set_matrix:
-    name: Calculate the Matrix of CPack Configurations
+    name: Set CPack Config Matrix
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set_matrix.outputs.matrix }}
@@ -33,7 +33,7 @@ jobs:
           echo "matrix=$matrix" | tee -a $GITHUB_OUTPUT
   package:
     needs: set_matrix
-    name: CPack ${{ matrix.distro.type}} v${{ matrix.distro.version }} ${{ matrix.arch.cmake }}
+    name: ${{ matrix.distro.name }} ${{ matrix.distro.version }} ${{ matrix.arch.rpm }}
     runs-on: ubuntu-20.04
     # build image name it from matrix values name:version unless override container is specified 
     container: ${{ matrix.distro.container || format('{0}:{1}', matrix.distro.name, matrix.distro.version) }} 
