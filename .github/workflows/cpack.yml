@@ -3,6 +3,8 @@ name: CI package
 on: 
   workflow_dispatch:
   push:
+    branches:  # ignore push to tags
+      - '**'
     paths:
       - programs/ziti-edge-tunnel/package/*
       - .github/actions/openziti-tunnel-build-action/*
@@ -10,6 +12,11 @@ on:
   release:
     types:
       - published
+
+# cancel older, redundant runs of same workflow on same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   package:
@@ -89,10 +96,14 @@ jobs:
               cmake: ci-linux-arm64
 
     steps:
+      - name: Debug action
+        uses: hmarr/debug-action@v2.1.0
+
       # only focal-20.04 has >= 2.18, which is required by actions/checkout to clone
       # which enables cmake version discovery
       - name: install contemporary Git in runner container if Ubuntu
         if: ${{ matrix.distro.name == 'ubuntu' }}
+        shell: bash
         run: |
           apt -y update
           apt-get -y install software-properties-common
@@ -103,6 +114,7 @@ jobs:
 
       - name: install contemporary Git in runner container if RedHat 8 or 9
         if: ${{ matrix.distro.name == 'redhat' && (matrix.distro.version == '8' || matrix.distro.version == '9') }}
+        shell: bash
         run: |
           dnf -y update
           dnf -y install git
@@ -110,6 +122,7 @@ jobs:
 
       - name: install contemporary Git in runner container if RedHat 7
         if: ${{ matrix.distro.name == 'redhat' && matrix.distro.version == '7' }}
+        shell: bash
         run: |
           yum -y update
           yum -y install centos-release-scl
@@ -141,38 +154,39 @@ jobs:
           arch: ${{ matrix.arch.cmake }}
           config: Release
 
-      - name: list build artifacts
+      - name: list artifacts
+        shell: bash
         run: |
+          set -x
           cat /etc/*-release
-          ls -horAS ./build/
-
-      - name: list program artifacts
-        run: |
-          cat /etc/*-release
-          ls -horAS ./build/programs/ziti-edge-tunnel/
+          ls -horAS ./build/*.${{ matrix.distro.type }}
+          ls -horAS ./build/programs/ziti-edge-tunnel/Release/ziti-edge-tunnel
 
       - name: install package artifact in runner container if Ubuntu x86_64
         if: ${{ matrix.arch.cmake == 'ci-linux-x64' && matrix.distro.name == 'ubuntu' }}
         env:
           DEBIAN_FRONTEND: noninteractive
+        shell: bash
         run: |
           apt -y install ./build/ziti-edge-tunnel-*.deb
 
       - name: install package artifact in runner container if RedHat
         if: ${{ matrix.arch.cmake == 'ci-linux-x64' && matrix.distro.name == 'redhat' }}
+        shell: bash
         run: |
           set -x
           yum -y install ./build/ziti-edge-tunnel-*.rpm
 
       - name: run binary artifact
         if: ${{ matrix.arch.cmake == 'ci-linux-x64' }}
+        shell: bash
         run: |
           set -x
           cat /etc/*-release
           ldd ./build/programs/ziti-edge-tunnel/Release/ziti-edge-tunnel
           ./build/programs/ziti-edge-tunnel/Release/ziti-edge-tunnel version --verbose
 
-      - name: upload package artifact
+      - name: Upload Package to Workflow Summary Page
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.distro.name }}-${{ matrix.distro.version }}-${{ matrix.arch.rpm }}-${{ matrix.distro.type }}
@@ -186,7 +200,7 @@ jobs:
           JF_ENV_1: ${{ secrets.ZITI_ARTIFACTORY_CLI_CONFIG_PACKAGE_UPLOAD }}
 
       - name: Upload RPM to Artifactory with jFrog CLI
-        if: ${{ github.event_name == 'release' && !github.event.release.prerelease && startsWith(github.ref, 'refs/tags/v') && matrix.distro.name == 'redhat' }}
+        shell: bash
         run: >
           jf rt upload
           ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
@@ -195,7 +209,7 @@ jobs:
           --flat=true 
 
       - name: Upload DEB to Artifactory with jFrog CLI
-        if: ${{ github.event_name == 'release' && !github.event.release.prerelease && startsWith(github.ref, 'refs/tags/v') && matrix.distro.name == 'ubuntu' }}
+        shell: bash
         run: >
           jf rt upload
           ./build/ziti-edge-tunnel-*.${{ matrix.distro.type }}
