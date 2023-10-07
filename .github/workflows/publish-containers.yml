@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ZITI_VERSION: ${{ inputs.ziti-version || github.event.inputs.ziti-version }}
+      ZITI_EDGE_TUNNEL_IMAGE: ${{ vars.ZITI_EDGE_TUNNEL_IMAGE || docker.io/openziti/ziti-edge-tunnel }}
+      ZITI_HOST_IMAGE: ${{ vars.ZITI_HOST_IMAGE || docker.io/openziti/ziti-host }}
     steps:
       - name: Checkout Workspace
         uses: actions/checkout@v3
@@ -40,13 +42,9 @@ jobs:
 
       - name: Set up Docker image tags for "run" container
         env:
-          RELEASE_REPO: ${{ env.ZITI_EDGE_TUNNEL_IMAGE }}
+          IMAGE_REPO: ${{ env.ZITI_EDGE_TUNNEL_IMAGE }}
         id: tagprep_run
-        run: |
-          DOCKER_TAGS=""
-          DOCKER_TAGS="${RELEASE_REPO}:${ZITI_VERSION}"
-          echo "DEBUG: DOCKER_TAGS=${DOCKER_TAGS}"
-          echo DOCKER_TAGS="${DOCKER_TAGS}" >> $GITHUB_OUTPUT
+        run: echo DOCKER_TAGS="${IMAGE_REPO}:${ZITI_VERSION}" | tee -a $GITHUB_OUTPUT
 
       - name: Build & Push Multi-Platform Container Image to Hub
         uses: docker/build-push-action@v3
@@ -63,13 +61,10 @@ jobs:
 
       - name: Set up Docker image tags for "run-host" container
         env:
-          RELEASE_REPO: openziti/ziti-host
-        id: tagprep_run_host
-        run: |
-          DOCKER_TAGS=""
-          DOCKER_TAGS="${RELEASE_REPO}:${ZITI_VERSION},${RELEASE_REPO}"
-          echo "DEBUG: DOCKER_TAGS=${DOCKER_TAGS}"
-          echo DOCKER_TAGS="${DOCKER_TAGS}" >> $GITHUB_OUTPUT
+          IMAGE_REPO: ${{ env.ZITI_HOST_IMAGE }}
+        id: tagprep_run
+        run: echo DOCKER_TAGS="${IMAGE_REPO}:${ZITI_VERSION}" | tee -a $GITHUB_OUTPUT
+
 
       - name: Build & Push Multi-Platform Container Image to Hub
         uses: docker/build-push-action@v3

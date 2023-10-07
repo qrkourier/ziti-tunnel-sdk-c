@@ -1,4 +1,4 @@
-name: Promote Downstream Releases to Latest
+name: Promote Downstreams to Latest
 
 on: 
   workflow_dispatch:
