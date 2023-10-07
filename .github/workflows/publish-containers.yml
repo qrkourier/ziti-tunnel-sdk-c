@@ -24,6 +24,9 @@ jobs:
       ZITI_EDGE_TUNNEL_IMAGE: ${{ vars.ZITI_EDGE_TUNNEL_IMAGE || 'docker.io/openziti/ziti-edge-tunnel' }}
       ZITI_HOST_IMAGE: ${{ vars.ZITI_HOST_IMAGE || 'docker.io/openziti/ziti-host' }}
     steps:
+      - name: Debug action
+        uses: hmarr/debug-action@v2.1.0
+
       - name: Checkout Workspace
         uses: actions/checkout@v3
 
