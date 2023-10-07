@@ -23,7 +23,7 @@ jobs:
         run: |
           if [[ "${RELEASE_REF}" =~ ^refs\/tags\/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "RELEASE_REF=${RELEASE_REF} is a semver release ref"
-            echo "version=${RELEASE_REF%refs/tags/v}" | tee -a $GITHUB_OUTPUT
+            echo "version=${RELEASE_REF#refs/tags/v}" | tee -a $GITHUB_OUTPUT
           else
             echo "RELEASE_REF=${RELEASE_REF} is not a semver release ref" >&2
             exit 1
