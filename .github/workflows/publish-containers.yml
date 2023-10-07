@@ -40,11 +40,11 @@ jobs:
 
       - name: Set up Docker image tags for "run" container
         env:
-          RELEASE_REPO: openziti/ziti-edge-tunnel
+          RELEASE_REPO: ${{ env.ZITI_EDGE_TUNNEL_IMAGE }}
         id: tagprep_run
         run: |
           DOCKER_TAGS=""
-          DOCKER_TAGS="${RELEASE_REPO}:${ZITI_VERSION},${RELEASE_REPO}:latest"
+          DOCKER_TAGS="${RELEASE_REPO}:${ZITI_VERSION}"
           echo "DEBUG: DOCKER_TAGS=${DOCKER_TAGS}"
           echo DOCKER_TAGS="${DOCKER_TAGS}" >> $GITHUB_OUTPUT
 
@@ -67,7 +67,7 @@ jobs:
         id: tagprep_run_host
         run: |
           DOCKER_TAGS=""
-          DOCKER_TAGS="${RELEASE_REPO}:${ZITI_VERSION},${RELEASE_REPO}:latest"
+          DOCKER_TAGS="${RELEASE_REPO}:${ZITI_VERSION},${RELEASE_REPO}"
           echo "DEBUG: DOCKER_TAGS=${DOCKER_TAGS}"
           echo DOCKER_TAGS="${DOCKER_TAGS}" >> $GITHUB_OUTPUT
 
