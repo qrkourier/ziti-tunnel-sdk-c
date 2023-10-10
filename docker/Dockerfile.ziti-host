@@ -2,7 +2,7 @@
 ARG ZITI_EDGE_TUNNEL_TAG="latest"
 ARG ZITI_EDGE_TUNNEL_IMAGE="docker.io/openziti/ziti-edge-tunnel"
 # this builds docker.io/openziti/ziti-host
-FROM ${ZITI_CLI_IMAGE}:${ZITI_CLI_TAG}
+FROM ${ZITI_EDGE_TUNNEL_IMAGE}:${ZITI_EDGE_TUNNEL_TAG}
 
 
 
