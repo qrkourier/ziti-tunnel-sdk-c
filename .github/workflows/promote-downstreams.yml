@@ -17,6 +17,9 @@ jobs:
     outputs:
       version: ${{ steps.parse.outputs.version }}
     steps:
+      - name: Debug action
+        uses: hmarr/debug-action@v2.1.0
+
       - name: Parse Release Version
         id: parse
         shell: bash
@@ -28,6 +31,16 @@ jobs:
             echo "RELEASE_REF=${RELEASE_REF} is not a semver release ref" >&2
             exit 1
           fi
+
+      - name: Wait for release builds to complete
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ env.RELEASE_REF }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          # seconds between polling the checks api for job statuses
+          wait-interval: 20
+          # confusingly, this means "pause this step until all jobs from all workflows in same run have completed"
+          running-workflow-name: parse_version
 
   set_matrix:
     name: Set CPack Config Matrix
@@ -92,9 +105,6 @@ jobs:
       fail-fast: true
       matrix: ${{ fromJSON(needs.set_matrix.outputs.matrix) }}
     steps:
-      - name: Debug action
-        uses: hmarr/debug-action@v2.1.0
-
       - name: Configure jFrog CLI
         uses: jfrog/setup-jfrog-cli@v3
         env:
