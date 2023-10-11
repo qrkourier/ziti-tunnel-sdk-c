@@ -8,12 +8,28 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
+env:
+  RELEASE_REF: ${{ github.ref}}
+
 jobs:
+  wait_for_release:
+    name: Wait for Release Builds to Succeed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for release builds to complete
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ env.RELEASE_REF }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          # seconds between polling the checks api for job statuses
+          wait-interval: 20
+          # confusingly, this means "pause this step until all jobs from all workflows in same run have completed"
+          running-workflow-name: Wait for Release Builds to Succeed
+
   parse_version:
+    needs: wait_for_release
     name: Parse Release Version
     runs-on: ubuntu-latest
-    env:
-      RELEASE_REF: ${{ github.ref}}
     outputs:
       version: ${{ steps.parse.outputs.version }}
     steps:
@@ -43,6 +59,7 @@ jobs:
           running-workflow-name: parse_version
 
   set_matrix:
+    needs: wait_for_release
     name: Set CPack Config Matrix
     runs-on: ubuntu-latest
     outputs:
