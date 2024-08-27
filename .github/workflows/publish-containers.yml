@@ -30,8 +30,24 @@ jobs:
       - name: Checkout Workspace
         uses: actions/checkout@v4
 
+      - name: Download CMake Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: linux-*
+          merge-multiple: true
+          path: ./downloads
+      
+      - name:  List Artifacts
+        run: ls -lAh ./downloads
+
+      - name: Unpack CMake Artifacts
+        run: |
+          mkdir -p ./build/{arm64,amd64}/linux/ 
+          unzip -d ./build/arm64/linux/ ./downloads/ziti-edge-tunnel-Linux_aarch64.zip
+          unzip -d ./build/amd64/linux/ ./downloads/ziti-edge-tunnel-Linux_x86_64.zip
+
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: amd64,arm64
 
@@ -45,7 +61,7 @@ jobs:
           username: ${{ vars.DOCKER_HUB_API_USER || secrets.DOCKER_HUB_API_USER }}
           password: ${{ secrets.DOCKER_HUB_API_TOKEN }}
 
-      - name: Set up Docker image tags for "run" container
+      - name: Set up Docker image tags for ziti-edge-tunnel image
         env:
           IMAGE_REPO: ${{ env.ZITI_EDGE_TUNNEL_IMAGE }}
         id: tagprep_run
@@ -55,13 +71,13 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ${{ github.workspace }}/docker
-          file: ${{ github.workspace }}/docker/Dockerfile.base
+          context: ${{ github.workspace }}
+          file: ${{ github.workspace }}/docker/ziti-edge-tunnel.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.tagprep_run.outputs.DOCKER_TAGS }}
           build-args: |
-            ZITI_VERSION=${{ env.ZITI_VERSION }}
-            GITHUB_REPO=${{ github.repository }}
+            ARTIFACTS_DIR=./build
+            DOCKER_BUILD_DIR=${{ github.workspace }}
           push: true
 
       - name: Set up Docker image tags for "run-host" container
@@ -74,8 +90,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ${{ github.workspace }}/docker
-          file: ${{ github.workspace }}/docker/Dockerfile.ziti-host
+          context: ${{ github.workspace }}
+          file: ${{ github.workspace }}/docker/ziti-host.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.tagprep_run_host.outputs.DOCKER_TAGS }}
           build-args: |
