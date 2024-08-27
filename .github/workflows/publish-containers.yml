@@ -70,7 +70,6 @@ jobs:
         id: tagprep_run_host
         run: echo DOCKER_TAGS="${IMAGE_REPO}:unstable,${IMAGE_REPO}:${ZITI_VERSION}" | tee -a $GITHUB_OUTPUT
 
-
       - name: Build & Push Multi-Platform Container Image to Hub
         uses: docker/build-push-action@v3
         with:
