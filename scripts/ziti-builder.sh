@@ -46,42 +46,36 @@ function set_git_safe_dirs() {
 }
 
 function set_workspace(){
-    # let GitHub Actions override the workspace dir
-    if [[ -n "${GITHUB_WORKSPACE:-}" ]]; then
-        WORKDIR="${GITHUB_WORKSPACE}"
-    else
-        export WORKDIR="/github/workspace"
-    fi
-
-    # if project is mounted on WORKDIR then build, else restart in container
-    if [[ -x "${WORKDIR}/${SCRIPTSDIR}/${BASENAME}" ]]; then
+    WORKSPACE="/workspace"
+    # if project is mounted then build, else mount and run container
+    if [[ -x "${WORKSPACE}/${SCRIPTSDIR}/${BASENAME}" ]]; then
         # container environment defines BUILD_ENVIRONMENT=ziti-builder-docker
         if [[ "${BUILD_ENVIRONMENT:-}" == "ziti-builder-docker" ]]; then
             echo "INFO: running in ziti-builder container"
-            set_git_safe_dirs "${WORKDIR}"
+            set_git_safe_dirs "${WORKSPACE}"
         else
             echo "ERROR: not running in ziti-builder container" >&2
             exit 1
         fi
     else
-        echo -e "INFO: project not mounted on ${WORKDIR}"\
-                "\nINFO: re-running in ziti-builder container"
+        echo -e "INFO: project not mounted on ${WORKSPACE}"\
+                "\nINFO: mounting on ziti-builder container"
         set -x
         eval exec docker run \
             --rm \
             --user "${UID}" \
-            --volume "${REPODIR}:${WORKDIR}" \
+            --volume "${REPODIR}:${WORKSPACE}" \
             --platform "linux/amd64" \
-            --env "VCPKG_DEFAULT_BINARY_CACHE=${WORKDIR}/.cache" \
+            --env "VCPKG_DEFAULT_BINARY_CACHE=${WORKSPACE}/.cache" \
             --env "TLSUV_TLSLIB" \
             "openziti/ziti-builder:${ZITI_BUILDER_TAG:-latest}" \
-                "${WORKDIR}/${SCRIPTSDIR}/${BASENAME}" "${@}"
+                "${WORKSPACE}/${SCRIPTSDIR}/${BASENAME}" "${@}"
     fi
 }
 
 function main() {
     echo "INFO: GIT_DISCOVERY_ACROSS_FILESYSTEM=${GIT_DISCOVERY_ACROSS_FILESYSTEM:-}"
-    echo "INFO: WORKDIR=${PWD}"
+    echo "INFO: WORKSPACE=${PWD}"
     echo "INFO: $(git --version)"
     echo "INFO: GIT_CONFIG_GLOBAL=${GIT_CONFIG_GLOBAL:-}"
     # use this value to detect whether any options were passed so we can warn if
@@ -140,9 +134,9 @@ function main() {
     ls -lAh ./build/programs/ziti-edge-tunnel/Release/ziti-edge-tunnel
 }
 
-# set global WORKDIR
+# set global WORKSPACE
 set_workspace "${@}"
 
-# run main() in WORKDIR
-cd "${WORKDIR}"
+# run main() in WORKSPACE
+cd "${WORKSPACE}"
 main "${@}"
