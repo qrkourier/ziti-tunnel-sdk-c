@@ -36,13 +36,12 @@ jobs:
           pattern: linux-*
           merge-multiple: true
           path: ./downloads
-      
-      - name:  List Artifacts
-        run: ls -lAh ./downloads
 
       - name: Unpack CMake Artifacts
+        shell: bash
         run: |
-          mkdir -p ./build/{arm64,amd64}/linux/ 
+          set -x
+          mkdir -p ./build/{arm64,amd64}/linux/
           unzip -d ./build/arm64/linux/ ./downloads/ziti-edge-tunnel-Linux_aarch64.zip
           unzip -d ./build/amd64/linux/ ./downloads/ziti-edge-tunnel-Linux_x86_64.zip
 
@@ -71,13 +70,13 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ${{ github.workspace }}
+          context: ${{ github.workspace }}/
           file: ${{ github.workspace }}/docker/ziti-edge-tunnel.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.tagprep_run.outputs.DOCKER_TAGS }}
           build-args: |
             ARTIFACTS_DIR=./build
-            DOCKER_BUILD_DIR=${{ github.workspace }}
+            DOCKER_BUILD_DIR=${{ github.workspace }}/docker
           push: true
 
       - name: Set up Docker image tags for "run-host" container
@@ -90,11 +89,11 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           builder: ${{ steps.buildx.outputs.name }}
-          context: ${{ github.workspace }}
+          context: ${{ github.workspace }}/
           file: ${{ github.workspace }}/docker/ziti-host.Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.tagprep_run_host.outputs.DOCKER_TAGS }}
           build-args: |
-            ZITI_EDGE_TUNNEL_TAG=${{ env.ZITI_VERSION }}
             ZITI_EDGE_TUNNEL_IMAGE=${{ env.ZITI_EDGE_TUNNEL_IMAGE }}
+            ZITI_EDGE_TUNNEL_TAG=${{ env.ZITI_VERSION }}
           push: true
