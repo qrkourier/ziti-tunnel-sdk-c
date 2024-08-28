@@ -37,6 +37,14 @@ jobs:
           merge-multiple: true
           path: ./downloads
 
+      - name: Debug Artifact Integrity
+        shell: bash
+        run: |
+          set -x
+          ls -horRAS ./downloads
+          sha256sum ./downloads/*.zip
+          file ./downloads/*.zip
+
       - name: Unpack CMake Artifacts
         shell: bash
         run: |
