@@ -26,7 +26,7 @@ RUN INSTALL_PKGS="iproute procps shadow-utils jq" \
     && microdnf -y install --setopt=install_weak_deps=0 --setopt=tsflags=nodocs ${INSTALL_PKGS}
 
 COPY ${ARTIFACTS_DIR}/${TARGETARCH}/${TARGETOS}/ziti-edge-tunnel /usr/local/bin/
-COPY ${DOCKER_BUILD_DIR}/docker/docker-entrypoint.sh /
+COPY ${DOCKER_BUILD_DIR}/docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
 RUN mkdir -m0777 /ziti-edge-tunnel
 RUN groupadd --system --gid 2171 ziti
