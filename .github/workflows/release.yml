@@ -71,10 +71,10 @@ jobs:
             exit 1
           fi
 
-  call-publish-containers:
+  call-publish-container-images:
     name: Publish Container Images
     needs: [ release ]
-    uses: ./.github/workflows/publish-containers.yml
+    uses: ./.github/workflows/publish-container-images.yml
     secrets: inherit
     with:
       ziti-version: ${{ needs.release.outputs.ZITI_VERSION }}

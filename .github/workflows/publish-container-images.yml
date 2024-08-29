@@ -17,7 +17,7 @@ on:
 # no need for concurrency group in callable workflows
 
 jobs:
-  publish-containers:
+  publish-container-images:
     runs-on: ubuntu-latest
     env:
       ZITI_VERSION: ${{ inputs.ziti-version || github.event.inputs.ziti-version }}
