@@ -19,6 +19,8 @@ REPODIR="$(dirname "${BASEDIR}")"           # path to project root is parent of 
 # set in ziti-builder image, but this default allows hacking the script to run
 # outside the ziti-builder container
 : "${GIT_CONFIG_GLOBAL:=/tmp/ziti-builder-gitconfig}"
+: "${UID:=$(id -u)}"
+: "${GID:=$(id -g)}"
 
 [[ ${1:-} =~ -h|(--)?help ]] && {
     echo -e "\nUsage: ${BASENAME} [CMD] [ARGS...]"\
@@ -60,10 +62,11 @@ function set_workspace(){
     else
         echo -e "INFO: project not mounted on ${WORKSPACE}"\
                 "\nINFO: mounting on ziti-builder container"
+        docker pull "openziti/ziti-builder:${ZITI_BUILDER_TAG:-latest}"
         set -x
         eval exec docker run \
             --rm \
-            --user "${UID}" \
+            --user "${UID}:${GID}" \
             --volume "${REPODIR}:${WORKSPACE}" \
             --platform "linux/amd64" \
             --env "VCPKG_DEFAULT_BINARY_CACHE=${WORKSPACE}/.cache" \
