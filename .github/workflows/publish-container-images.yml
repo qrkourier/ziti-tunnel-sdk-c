@@ -44,6 +44,7 @@ jobs:
           ls -horRAS ./downloads
           sha256sum ./downloads/*.zip
           file ./downloads/*.zip
+          unzip -t ./downloads/*.zip
 
       - name: Unpack CMake Artifacts
         shell: bash
@@ -84,7 +85,7 @@ jobs:
           tags: ${{ steps.tagprep_run.outputs.DOCKER_TAGS }}
           build-args: |
             ARTIFACTS_DIR=./build
-            DOCKER_BUILD_DIR=${{ github.workspace }}/docker
+            DOCKER_BUILD_DIR=./docker
           push: true
 
       - name: Set up Docker image tags for "run-host" container
