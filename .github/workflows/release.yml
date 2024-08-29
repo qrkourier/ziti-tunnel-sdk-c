@@ -60,22 +60,21 @@ jobs:
       - name: Get the Version String from Git Tag
         id: get_version
         env:
-          GITHUB_REF: ${{ github.ref }}
+          RELEASE_REF: ${{ github.ref_name }}
         run: |
-          ZITI_VERSION="${GITHUB_REF#refs/*/v}"
+          ZITI_VERSION="${RELEASE_REF#v}"
           if [[ "${ZITI_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "DEBUG: ZITI_VERSION=${ZITI_VERSION}"
-            echo ZITI_VERSION="${ZITI_VERSION}" >> $GITHUB_OUTPUT
+            echo ZITI_VERSION="${ZITI_VERSION}" | tee -a $GITHUB_OUTPUT
           else
             # fail the job because we could not obtain a valid version string from the Git ref
-            echo "ERROR: ZITI_VERSION=${ZITI_VERSION} is not a semver"
+            echo "ERROR: ZITI_VERSION=${ZITI_VERSION} is not a release semver"
             exit 1
           fi
 
-  call-publish-containers:
+  call-publish-container-images:
     name: Publish Container Images
     needs: [ release ]
-    uses: ./.github/workflows/publish-containers.yml
+    uses: ./.github/workflows/publish-container-images.yml
     secrets: inherit
     with:
       ziti-version: ${{ needs.release.outputs.ZITI_VERSION }}
