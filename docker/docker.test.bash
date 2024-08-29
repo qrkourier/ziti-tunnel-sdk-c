@@ -163,4 +163,6 @@ do
 done
 eval "${curl_cmd}" | jq .json
 
+(( I_AM_ROBOT )) || read -p "Press [Enter] to continue..."
+
 cleanup
