@@ -3,13 +3,19 @@ services:
         image: mccutchen/go-httpbin
         expose:
             - 8080
+        networks:
+            - quickstart
 
     ziti-tun:
         pull_policy: never
+        command: run --verbose=4 --dns-ip-range=100.95.255.128/25
 
     ziti-host:
         pull_policy: never
-        entrypoint: ["bash", "-x", "/docker-entrypoint.sh"]
+        networks:
+            - quickstart
+        command: run-host --verbose=4
+        # entrypoint: ["bash", "-x", "/docker-entrypoint.sh"]
 
     quickstart:
         image: ${ZITI_CLI_IMAGE:-docker.io/openziti/ziti-controller}:${ZITI_CLI_TAG:-latest}

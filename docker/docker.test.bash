@@ -36,18 +36,11 @@ portcheck(){
     fi
 }
 
-# killZetPid() {
-#     if [[ -n "${ZET_PID:-}" ]]
-#     then
-#         sudo kill "${ZET_PID}"
-#     fi
-# }
-
 BASEDIR="$(cd "$(dirname "${0}")" && pwd)"
 REPOROOT="$(cd "${BASEDIR}/.." && pwd)"
 cd "${REPOROOT}"
 
-declare -a BINS=(grep docker ./scripts/ziti-builder.sh curl nc)
+declare -a BINS=(grep docker ./scripts/ziti-builder.sh curl nc jq)
 for BIN in "${BINS[@]}"; do
     checkCommand "$BIN"
 done
@@ -55,9 +48,9 @@ done
 : "${I_AM_ROBOT:=0}"
 : "${ZITI_CTRL_ADVERTISED_PORT:=12802}"
 : "${ZITI_ROUTER_PORT:=30224}"
-: "${ZIGGY_UID:=$(id -u)}"
+# : "${ZIGGY_UID:=$(id -u)}"
 
-## debug skip
+## DEBUG: build ZET binary unless built
 [[ -s ./build/programs/ziti-edge-tunnel/Release/ziti-edge-tunnel ]] || \
 ./scripts/ziti-builder.sh -p ci-linux-x64
 mkdir -p ./build/amd64/linux
@@ -93,7 +86,7 @@ export COMPOSE_FILE="docker/compose.intercept.yml:docker/compose.host.yml:docker
 
 cleanup
 
-# freshen ziti-controller, httpbin images
+# freshen ziti-controller, httpbin, etc. images
 docker compose pull
 
 for PORT in "${ZITI_CTRL_ADVERTISED_PORT}" "${ZITI_ROUTER_PORT}"
@@ -101,6 +94,7 @@ do
     portcheck "${PORT}"
 done
 
+# configure the quickstart container
 export \
 ZITI_CTRL_ADVERTISED_ADDRESS="ziti.127.0.0.1.sslip.io" \
 ZITI_PWD="ziggypw" \
@@ -110,7 +104,7 @@ ZITI_ROUTER_PORT
 # run the check container that waits for a responsive controller agent
 docker compose up quickstart-check
 
-# run the script from heredoc inside the quickstart container with delayed variable interpolation
+# run the script from heredoc inside the quickstart container after variable interpolation
 docker compose exec -T quickstart bash << BASH
 
 set -o errexit
@@ -127,11 +121,11 @@ ${ZITI_CTRL_ADVERTISED_ADDRESS}:${ZITI_CTRL_ADVERTISED_PORT} \
 --verbose
 
 ziti edge create identity "httpbin-client" \
-    --jwt-output-file /home/ziggy/httpbin-client.jwt \
+    --jwt-output-file /tmp/httpbin-client.ott.jwt \
     --role-attributes httpbin-clients
 
 ziti edge create identity "httpbin-host" \
-    --jwt-output-file /home/ziggy/httpbin-host.jwt \
+    --jwt-output-file /tmp/httpbin-host.ott.jwt \
     --role-attributes httpbin-hosts
 
 ziti edge create config "httpbin-intercept-config" intercept.v1 \
@@ -153,26 +147,22 @@ ziti edge create service-policy "httpbin-dial-policy" Dial \
     --identity-roles '#httpbin-clients'
 BASH
 
-ZITI_ENROLL_TOKEN="$(docker compose exec quickstart cat /home/ziggy/httpbin-host.jwt)" \
-docker compose up ziti-host #--detach
+ZITI_ENROLL_TOKEN="$(docker compose exec quickstart cat /tmp/httpbin-host.ott.jwt)" \
+docker compose up ziti-host --detach
+docker compose up httpbin --detach
 
-ZITI_ENROLL_TOKEN="$(docker compose exec quickstart cat /home/ziggy/httpbin-client.jwt)" \
+ZITI_ENROLL_TOKEN="$(docker compose exec quickstart cat /tmp/httpbin-client.ott.jwt)" \
 docker  compose up ziti-tun --detach
 
-# trap killZetPid EXIT
-# CLIENT_LOG="$(mktemp)"
-# nohup sudo ./build/amd64/linux/ziti-edge-tunnel run --identity "${CLIENT_OTT}.json" > "${CLIENT_LOG}" &
-# ZET_PID=$!
-
-ATTEMPTS=10
+ATTEMPTS=5
 DELAY=3
-curl_cmd="curl --fail --silent --show-error --request POST --data ziti=works http://httpbin.ziti.internal"
-until ! ((ATTEMPTS)) || ${curl_cmd} &> /dev/null
+curl_cmd="curl --fail --max-time 1 --silent --show-error --request POST --header 'Content-Type: application/json' --data '{\"ziti\": \"works\"}' http://httpbin.ziti.internal/post"
+until ! ((ATTEMPTS)) || eval "${curl_cmd}" &> /dev/null
 do
     (( ATTEMPTS-- ))
     echo "Waiting for httpbin service"
     sleep ${DELAY}
 done
-${curl_cmd}
+eval "${curl_cmd}" | jq .json
 
 cleanup
