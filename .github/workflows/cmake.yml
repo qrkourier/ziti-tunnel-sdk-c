@@ -96,7 +96,7 @@ jobs:
       - name: Debug Artifact Integrity
         shell: bash
         run: |
-          set -x
+          set -x +e
           ls -horRAS ./build/bundle/ziti-edge-tunnel-*.zip
           sha256sum ./build/bundle/ziti-edge-tunnel-*.zip
           file ./build/bundle/ziti-edge-tunnel-*.zip

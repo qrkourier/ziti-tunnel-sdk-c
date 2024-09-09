@@ -25,7 +25,7 @@ jobs:
       - name: Debug Artifact Integrity
         shell: bash
         run: |
-          set -x
+          set -x +e
           ls -horRAS ./downloads
           sha256sum ./downloads/*.zip
           file ./downloads/*.zip
