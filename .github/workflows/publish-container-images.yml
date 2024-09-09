@@ -41,12 +41,20 @@ jobs:
         shell: bash
         run: |
           set -x +e
-          ls -horRAS "${DOWNLOAD_PATH}/"
-          sha256sum "${DOWNLOAD_PATH}/"*.zip
-          file "${DOWNLOAD_PATH}/"*.zip
+          typeset -a FAILED=()
           for ZIP in "${DOWNLOAD_PATH}/"*.zip; do
-            unzip -t "${ZIP}"
+            ls -o "${ZIP}"
+            sha256sum "${ZIP}"
+            file "${ZIP}"
+            unzip -t "${ZIP}" || FAILED+=("${ZIP}")
           done
+          if [[ ${#FAILED[@]} -gt 0 ]]; then
+            echo "ERROR: one or more downloaded artifacts failed integrity check"
+            for ZIP in "${FAILED[@]}"; do
+              echo "  ${ZIP}"
+            done
+            exit 1
+          fi
         env:
           DOWNLOAD_PATH: ./downloads
 
