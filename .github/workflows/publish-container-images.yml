@@ -44,7 +44,9 @@ jobs:
           ls -horRAS "${DOWNLOAD_PATH}/"
           sha256sum "${DOWNLOAD_PATH}/"*.zip
           file "${DOWNLOAD_PATH}/"*.zip
-          unzip -t "${DOWNLOAD_PATH}/"*.zip
+          for ZIP in "${DOWNLOAD_PATH}/"*.zip; do
+            unzip -t "${ZIP}"
+          done
         env:
           DOWNLOAD_PATH: ./downloads
 
