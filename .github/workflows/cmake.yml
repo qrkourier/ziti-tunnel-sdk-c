@@ -97,10 +97,12 @@ jobs:
         shell: bash
         run: |
           set -x +e
-          ls -horRAS ./build/bundle/ziti-edge-tunnel-*.zip
-          sha256sum ./build/bundle/ziti-edge-tunnel-*.zip
-          file ./build/bundle/ziti-edge-tunnel-*.zip
-          unzip -t ./build/bundle/ziti-edge-tunnel-*.zip
+          ls -horRAS "${DOWNLOAD_PATH}/"
+          sha256sum "${DOWNLOAD_PATH}/"*.zip
+          file "${DOWNLOAD_PATH}/"*.zip
+          unzip -t "${DOWNLOAD_PATH}/"*.zip
+        env:
+          DOWNLOAD_PATH: ./build/bundle
 
       - name: upload bundle artifacts
         uses: actions/upload-artifact@v4
