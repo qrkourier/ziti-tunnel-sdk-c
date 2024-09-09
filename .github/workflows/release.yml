@@ -21,15 +21,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ${{ runner.workspace }}/downloads/
+          merge-multiple: true
 
       - name: Debug Artifact Integrity
         shell: bash
         run: |
           set -x +e
-          ls -horRAS ./downloads
-          sha256sum ./downloads/*.zip
-          file ./downloads/*.zip
-          unzip -t ./downloads/*.zip
+          ls -horRAS "${DOWNLOAD_PATH}/"
+          sha256sum "${DOWNLOAD_PATH}/"*.zip
+          file "${DOWNLOAD_PATH}/"*.zip
+          unzip -t "${DOWNLOAD_PATH}/"*.zip
+        env:
+          DOWNLOAD_PATH: ${{ runner.workspace }}/downloads/
 
       # This step is only necessary because we prefer a different release artifact name
       # than is created by CMake, and so we could change the CMake configuration but for
@@ -57,14 +60,7 @@ jobs:
           # token: defaults to github.token
           fail_on_unmatched_files: true
           files: |
-            ${{ runner.workspace }}/downloads/linux-arm-static/ziti-edge-tunnel-Linux_arm-static.zip
-            ${{ runner.workspace }}/downloads/linux-arm64-static/ziti-edge-tunnel-Linux_arm64-static.zip
-            ${{ runner.workspace }}/downloads/linux-arm64-static/ziti-edge-tunnel-Linux_x86_64-static.zip
-            ${{ runner.workspace }}/downloads/linux-x64/ziti-edge-tunnel-Linux_x86_64.zip
-            ${{ runner.workspace }}/downloads/linux-arm/ziti-edge-tunnel-Linux_arm.zip
-            ${{ runner.workspace }}/downloads/linux-arm64/ziti-edge-tunnel-Linux_arm64.zip
-            ${{ runner.workspace }}/downloads/macOS-x64/ziti-edge-tunnel-Darwin_x86_64.zip
-            ${{ runner.workspace }}/downloads/macOS-arm64/ziti-edge-tunnel-Darwin_arm64.zip
+            ${{ runner.workspace }}/downloads/*.zip
 
       - name: Get the Version String from Git Tag
         id: get_version

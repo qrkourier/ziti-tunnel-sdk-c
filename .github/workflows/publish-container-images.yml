@@ -41,10 +41,12 @@ jobs:
         shell: bash
         run: |
           set -x +e
-          ls -horRAS ./downloads
-          sha256sum ./downloads/*.zip
-          file ./downloads/*.zip
-          unzip -t ./downloads/*.zip
+          ls -horRAS "${DOWNLOAD_PATH}/"
+          sha256sum "${DOWNLOAD_PATH}/"*.zip
+          file "${DOWNLOAD_PATH}/"*.zip
+          unzip -t "${DOWNLOAD_PATH}/"*.zip
+        env:
+          DOWNLOAD_PATH: ./downloads
 
       - name: Unpack CMake Artifacts
         shell: bash
