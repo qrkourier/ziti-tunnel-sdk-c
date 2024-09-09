@@ -30,9 +30,11 @@ jobs:
           ls -horRAS "${DOWNLOAD_PATH}/"
           sha256sum "${DOWNLOAD_PATH}/"*.zip
           file "${DOWNLOAD_PATH}/"*.zip
-          unzip -t "${DOWNLOAD_PATH}/"*.zip
+          for ZIP in "${DOWNLOAD_PATH}/"*.zip; do
+            unzip -t "${ZIP}"
+          done
         env:
-          DOWNLOAD_PATH: ${{ runner.workspace }}/downloads/
+          DOWNLOAD_PATH: ${{ runner.workspace }}/downloads
 
       # This step is only necessary because we prefer a different release artifact name
       # than is created by CMake, and so we could change the CMake configuration but for
