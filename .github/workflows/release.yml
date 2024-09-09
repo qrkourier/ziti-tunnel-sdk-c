@@ -20,15 +20,14 @@ jobs:
       - name: download
         uses: actions/download-artifact@v4
         with:
-          path: ${{ runner.workspace }}/downloads/
-          merge-multiple: true
+          path: ${{ runner.workspace }}/downloads
 
       - name: Debug Artifact Integrity
         shell: bash
         run: |
           set -x +e
           typeset -a FAILED=()
-          for ZIP in "${DOWNLOAD_PATH}/"*.zip; do
+          for ZIP in "${DOWNLOAD_PATH}/"**/*.zip; do
             ls -o "${ZIP}"
             sha256sum "${ZIP}"
             file "${ZIP}"
@@ -72,7 +71,16 @@ jobs:
           # token: defaults to github.token
           fail_on_unmatched_files: true
           files: |
-            ${{ runner.workspace }}/downloads/*.zip
+            ${{ runner.workspace }}/downloads/**/*.zip
+
+          # ${{ runner.workspace }}/downloads/linux-arm-static/ziti-edge-tunnel-Linux_arm-static.zip
+          # ${{ runner.workspace }}/downloads/linux-arm64-static/ziti-edge-tunnel-Linux_arm64-static.zip
+          # ${{ runner.workspace }}/downloads/linux-arm64-static/ziti-edge-tunnel-Linux_x86_64-static.zip
+          # ${{ runner.workspace }}/downloads/linux-x64/ziti-edge-tunnel-Linux_x86_64.zip
+          # ${{ runner.workspace }}/downloads/linux-arm/ziti-edge-tunnel-Linux_arm.zip
+          # ${{ runner.workspace }}/downloads/linux-arm64/ziti-edge-tunnel-Linux_arm64.zip
+          # ${{ runner.workspace }}/downloads/macOS-x64/ziti-edge-tunnel-Darwin_x86_64.zip
+          # ${{ runner.workspace }}/downloads/macOS-arm64/ziti-edge-tunnel-Darwin_arm64.zip
 
       - name: Get the Version String from Git Tag
         id: get_version

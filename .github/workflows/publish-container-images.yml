@@ -34,7 +34,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: linux-*
-          merge-multiple: true
           path: ./downloads
 
       - name: Debug Artifact Integrity
@@ -42,7 +41,7 @@ jobs:
         run: |
           set -x +e
           typeset -a FAILED=()
-          for ZIP in "${DOWNLOAD_PATH}/"*.zip; do
+          for ZIP in "${DOWNLOAD_PATH}/"**/*.zip; do
             ls -o "${ZIP}"
             sha256sum "${ZIP}"
             file "${ZIP}"
@@ -63,8 +62,8 @@ jobs:
         run: |
           set -x
           mkdir -p ./build/{arm64,amd64}/linux/
-          unzip -d ./build/arm64/linux/ ./downloads/ziti-edge-tunnel-Linux_aarch64.zip
-          unzip -d ./build/amd64/linux/ ./downloads/ziti-edge-tunnel-Linux_x86_64.zip
+          unzip -d ./build/arm64/linux/ ./downloads/linux-arm64/ziti-edge-tunnel-Linux_aarch64.zip
+          unzip -d ./build/amd64/linux/ ./downloads/linux-x64/ziti-edge-tunnel-Linux_x86_64.zip
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
