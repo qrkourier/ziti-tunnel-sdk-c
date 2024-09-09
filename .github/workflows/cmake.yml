@@ -93,6 +93,15 @@ jobs:
         run: ls -R
         working-directory: ./build/programs/ziti-edge-tunnel/
 
+      - name: Debug Artifact Integrity
+        shell: bash
+        run: |
+          set -x
+          ls -horRAS ./build/bundle/ziti-edge-tunnel-*.zip
+          sha256sum ./build/bundle/ziti-edge-tunnel-*.zip
+          file ./build/bundle/ziti-edge-tunnel-*.zip
+          unzip -t ./build/bundle/ziti-edge-tunnel-*.zip
+
       - name: upload bundle artifacts
         uses: actions/upload-artifact@v4
         with:
