@@ -13,8 +13,8 @@ ENV PATH="/usr/local/:${PATH}"
 ENV GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 ENV TZ=UTC
 
-RUN dnf update -y \
-    && dnf install -y \
+RUN dnf update --assumeyes \
+    && dnf install --assumeyes \
         "@Development Tools" \
         dnf-plugins-core \
         iproute \
@@ -26,7 +26,7 @@ RUN dnf update -y \
         perl-FindBin perl-IPC-Cmd perl-File-Compare perl-File-Copy \
         libatomic \
     && dnf config-manager --set-enabled crb \
-    && dnf install -y \
+    && dnf install --assumeyes \
         doxygen \
         graphviz \
         git \
