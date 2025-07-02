@@ -1,6 +1,6 @@
 ARG CMAKE_VERSION="3.26.3"
 
-FROM rockylinux:9
+FROM quay.io/almalinuxorg/almalinux:10
 
 ARG CMAKE_VERSION
 
@@ -13,8 +13,8 @@ ENV PATH="/usr/local/:${PATH}"
 ENV GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 ENV TZ=UTC
 
-RUN dnf update --assumeyes --nobest \
-    && dnf install --assumeyes --nobest \
+RUN dnf update --assumeyes \
+    && dnf install --assumeyes \
         "@Development Tools" \
         dnf-plugins-core \
         iproute \
@@ -26,7 +26,7 @@ RUN dnf update --assumeyes --nobest \
         perl-FindBin perl-IPC-Cmd perl-File-Compare perl-File-Copy \
         libatomic \
     && dnf config-manager --set-enabled crb \
-    && dnf install --assumeyes --nobest \
+    && dnf install --assumeyes \
         doxygen \
         graphviz \
         git \
