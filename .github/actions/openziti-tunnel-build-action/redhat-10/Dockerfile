@@ -1,6 +1,6 @@
 ARG CMAKE_VERSION="3.26.3"
 
-FROM quay.io/almalinuxorg/almalinux:10
+FROM quay.io/almalinuxorg/almalinux:10.0-20250611
 
 ARG CMAKE_VERSION
 
