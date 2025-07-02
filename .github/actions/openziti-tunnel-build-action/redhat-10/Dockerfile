@@ -43,12 +43,14 @@ RUN curl -sSfL https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSIO
 ENV GIT_CONFIG_GLOBAL="/tmp/ziti-builder-gitconfig"
 
 ENV VCPKG_ROOT=/usr/local/vcpkg
-# this must be set on arm. see https://learn.microsoft.com/en-us/vcpkg/users/config-environment#vcpkg_force_system_binaries
+ENV VCPKG_BINARY_SOURCES="clear;files,/github/workspace/vcpkg_cache/archives,readwrite"
+ENV VCPKG_DOWNLOADS=/github/workspace/vcpkg_cache/downloads
+ENV VCPKG_INSTALLED_DIR=/github/workspace/vcpkg_cache/installed
+
 ENV VCPKG_FORCE_SYSTEM_BINARIES=yes
 
 RUN cd /usr/local \
     && git clone https://github.com/microsoft/vcpkg \
-    && ./vcpkg/bootstrap-vcpkg.sh -disableMetrics \
     && chmod -R ugo+rwX /usr/local/vcpkg
 
 WORKDIR /github/workspace
