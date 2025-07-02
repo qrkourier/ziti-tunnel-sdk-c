@@ -3,7 +3,7 @@
 # RedHat 10
 #
 
-set -euo pipefail
+set -euxo pipefail
 
 # these commands must be in the entrypoint so they are run after workspace is mounted on Docker workdir
 echo "INFO: GIT_DISCOVERY_ACROSS_FILESYSTEM=${GIT_DISCOVERY_ACROSS_FILESYSTEM}"
@@ -32,8 +32,16 @@ fi
 for SAFE in \
     /github/workspace \
     /__w/ziti-tunnel-sdk-c/ziti-tunnel-sdk-c \
-    /mnt ; do
-        git config --global --add safe.directory ${SAFE}
+    /mnt \
+    /usr/local/vcpkg
+do
+    git config --global --add safe.directory ${SAFE}
+done
+
+for CACHE in \
+    /github/workspace/vcpkg_cache/{archives,downloads,installed}
+do
+    mkdir -p ${CACHE}
 done
 
 (
