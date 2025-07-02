@@ -13,7 +13,8 @@ ENV PATH="/usr/local/:${PATH}"
 ENV GIT_DISCOVERY_ACROSS_FILESYSTEM=1
 ENV TZ=UTC
 
-RUN dnf install -y \
+RUN dnf update -y \
+    && dnf install -y \
         "@Development Tools" \
         dnf-plugins-core \
         iproute \
@@ -33,7 +34,7 @@ RUN dnf install -y \
         protobuf-c-devel \
         openssl-devel \
         ninja-build \
-    && dnf clean all 
+    && dnf clean all
 
 RUN curl -sSfL https://cmake.org/files/v${CMAKE_VERSION%.*}/cmake-${CMAKE_VERSION}-linux-$(uname -m).sh -o cmake.sh \
     && (bash cmake.sh --skip-license --prefix=/usr/local) \
