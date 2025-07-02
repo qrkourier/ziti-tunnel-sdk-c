@@ -107,12 +107,12 @@ jobs:
         shell: bash
         env:
           KEY_PREFIX: vcpkg_cache-cpack-${{ matrix.arch.rpm }}-${{ matrix.distro.name }}-${{ matrix.distro.version }}
-          ACTION_HASH: ${{ hashFiles(format('./.github/actions/openziti-tunnel-build-action/{0}-{1}', matrix.distro.name, matrix.distro.version)) }}
+          ACTION_HASH: ${{ hashFiles(format('./.github/actions/openziti-tunnel-build-action/{0}_{1}', matrix.distro.name, matrix.distro.version)) }}
           CONFIG_HASH: ${{ hashFiles('./vcpkg.json') }}
         run: |
           set -o pipefail
           set -o xtrace
-          echo "key=${KEY_PREFIX}-config_hash=${CONFIG_HASH}-action_hash=${ACTION_HASH}" | tee -a $GITHUB_OUTPUT
+          echo "key=${KEY_PREFIX}-config_hash-${CONFIG_HASH}-action_hash-${ACTION_HASH}" | tee -a $GITHUB_OUTPUT
 
       - name: Create a Vcpkg Cache with the Defined Key for this Matrix Job
         id: vcpkg_cache
