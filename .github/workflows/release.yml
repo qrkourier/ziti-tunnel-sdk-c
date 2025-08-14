@@ -35,7 +35,7 @@ jobs:
           # token: defaults to github.token
           fail_on_unmatched_files: true
           files: |
-            ${{ runner.workspace }}/downloads/*.zip
+            ${{ runner.workspace }}/downloads/**/*.zip
 
       - name: Get the Version String from Git Tag
         id: get_version
